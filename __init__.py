@@ -4,7 +4,7 @@ import argparse
 from words import extract_words, extract_regions
 from characters import extract_characters
 import PIL
-import pillowfight as pf
+#import pillowfight as pf
 
 
 if __name__ == '__main__':
