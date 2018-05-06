@@ -1,7 +1,8 @@
 import cv2
 import numpy as np
 from copy import deepcopy
-from lib import calc_bbox
+from lib import calc_bbox, X, Y, WIDTH, HEIGHT, BboxImg
+
 
 DEBUG = True
 
@@ -13,13 +14,20 @@ def extract_characters_bbox(img):
     #mser = cv2.MSER_create()
     #coodinates, bboxes = mser.detectRegions(gray_img)
 
-    edges_img = cv2.Canny(gray_img, 10, 100)
-    _, contours, _ = cv2.findContours(edges_img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    #edges_img = cv2.Canny(gray_img, 10, 100)
+    edges_img = gray_img
+
+    #kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (1, 10))
+    #char_img = cv2.morphologyEx(edges_img, cv2.MORPH_CLOSE, kernel)
+    char_img = cv2.threshold(edges_img, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
+    char_img = 255 - char_img
+
+    _, contours, _ = cv2.findContours(char_img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_TC89_KCOS)
     bboxes = calc_bbox(contours, width, height)
 
-
     if DEBUG:
-        cv2.imshow('char_img', edges_img)
+        #cv2.imwrite('char_img.png', char_img)
+        cv2.imshow('char_img', char_img)
         cv2.waitKey(0)
         cv2.destroyAllWindows()
 
@@ -33,8 +41,18 @@ def extract_characters_bbox(img):
         cv2.destroyAllWindows()
 
     # TODO: Have to handle disconnected characters i.e. i
-    res = []
+    # TODO: Remove boxes inside of a larger box
+    return bboxes
 
 
 def extract_characters(img):
-    extract_characters_bbox(img)
+    '''DEPECRETATED, use fan's implementation'''
+    bboxes = extract_characters_bbox(img)
+
+    res = []
+    for bbox in bboxes:
+        bbox_img = img[bbox[Y]:bbox[Y]+bbox[HEIGHT], bbox[X]:bbox[X]+bbox[WIDTH]]
+        res.append(BboxImg(bbox, bbox_img))
+
+    res.sort(key=lambda k: k.bbox[X], reverse=False)
+    return [i.img for i in res]

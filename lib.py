@@ -1,15 +1,17 @@
 import cv2
 import numpy as np
+from collections import namedtuple
 
 X = 0
 Y = 1
 WIDTH = 2
 HEIGHT = 3
 
+BboxImg = namedtuple('BboxImg', ['bbox', 'img'])
 
 def calc_bbox(contours, img_width, img_height):
     # TODO: instead of using a multipler for width, inc by half of character width
-    INC_MULTIPLIER = 1.1
+    INC_MULTIPLIER = 1.05
     bboxes = []
     for c in contours:
         bbox = cv2.boundingRect(c)

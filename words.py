@@ -2,11 +2,10 @@ import cv2
 import numpy as np
 from copy import deepcopy
 from collections import namedtuple
-from lib import calc_bbox, X, Y, WIDTH, HEIGHT
+from lib import calc_bbox, X, Y, WIDTH, HEIGHT, BboxImg
+import PIL
 
 DEBUG = True
-
-BboxImg = namedtuple('BboxImg', ['bbox', 'img'])
 
 
 def _extract_lines(img):
@@ -112,6 +111,46 @@ def extract_words(img):
         line_words = _extract_words_line(l)
         words.append(line_words)
 
-
     # return a list where it holds a list that contains a line of words
     return words
+
+
+def extract_regions(img):
+    '''
+    Extracts text regions from a image that has no text
+    i.g. has used SWT to filter non text
+    '''
+    gray_img = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
+    height, width = img.shape[0:2]
+
+    edges_img = cv2.Canny(gray_img, 10, 100)
+    # TODO: make kernel dynamically sized (use image size?)
+    kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (100, 100))
+    region_img = cv2.dilate(edges_img, kernel, iterations=1)
+
+    if DEBUG:
+        cv2.imshow('region_img', region_img)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
+
+    _, contours, _ = cv2.findContours(region_img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    bboxes = calc_bbox(contours, width, height)
+
+    if DEBUG:
+        debug_img = deepcopy(img)
+
+        for bbox in bboxes:
+            x, y, w, h = bbox
+            cv2.rectangle(debug_img, (x,y), (x+w,y+h), (0,255,0), 1)
+
+        cv2.imshow('region_debug_img', debug_img)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
+
+    res = []
+    for bbox in bboxes:
+        bbox_img = img[bbox[Y]:bbox[Y]+bbox[HEIGHT], bbox[X]:bbox[X]+bbox[WIDTH]]
+        res.append(BboxImg(bbox, bbox_img))
+
+    res.sort(key=lambda k: k.bbox[X], reverse=False)
+    return [i.img for i in res]
