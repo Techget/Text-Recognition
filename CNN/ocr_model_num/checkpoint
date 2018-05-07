@@ -1,0 +1,2 @@
+model_checkpoint_path: "ocr_conv_nn"
+all_model_checkpoint_paths: "ocr_conv_nn"
