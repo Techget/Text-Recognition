@@ -40,13 +40,32 @@ def extract_characters_bbox(img):
         cv2.waitKey(0)
         cv2.destroyAllWindows()
 
-    # TODO: Have to handle disconnected characters i.e. i
-    # TODO: Remove boxes inside of a larger box
+    # Remove boxes inside of a larger box
+    # Have to handle disconnected characters i.e. i
+    to_remove = []
+    for i in range(0, len(bboxes)):
+        for j in range(0, len(bboxes)):
+            if i == j:
+                break
+            if (bboxes[i][X] >= bboxes[j][X] and bboxes[i][X] + bboxes[i][WIDTH] <= bboxes[j][X] + bboxes[j][WIDTH] and
+            bboxes[i][Y] >= bboxes[j][Y] and bboxes[i][Y] + bboxes[i][HEIGHT] <=  bboxes[j][Y] + bbox[j][HEIGHT]):
+                to_remove.append(bboxes[j])
+
+            elif ((bboxes[i][X] >= bboxes[j][X] and bboxes[j][X] + bboxes[j][WIDTH] >= bboxes[i][X])):
+                # combine them
+                to_remove.append(bboxes[i])
+                new_width = bboxes[j][WIDTH]
+                new_y = 0
+                new_height = height
+                # build new tuple and replace
+                new_bbox = (bboxes[j][X], new_y, new_width, new_height)
+                bboxes[j] = new_bbox
+
+    bboxes = [x for x in bboxes if x not in to_remove]
     return bboxes
 
 
 def extract_characters(img):
-    '''DEPECRETATED, use fan's implementation'''
     bboxes = extract_characters_bbox(img)
 
     res = []
@@ -55,4 +74,11 @@ def extract_characters(img):
         res.append(BboxImg(bbox, bbox_img))
 
     res.sort(key=lambda k: k.bbox[X], reverse=False)
+
+    if DEBUG:
+        for r in res:
+            cv2.imshow('char_img', r.img)
+            cv2.waitKey(0)
+            cv2.destroyAllWindows()
+
     return [i.img for i in res]
