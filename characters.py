@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 from copy import deepcopy
-from lib import calc_bbox, X, Y, WIDTH, HEIGHT, BboxImg
+from lib import calc_bbox, X, Y, WIDTH, HEIGHT, BboxImg, add_inc_border, percent_inc_border
 
 DEBUG = True
 
@@ -53,7 +53,7 @@ def extract_characters_bbox(img):
     char_img = 255 - char_img
 
     _, contours, _ = cv2.findContours(char_img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_TC89_KCOS)
-    bboxes = calc_bbox(contours, width, height)
+    bboxes = calc_bbox(contours, width, height, percent_inc_border, 1.05, 1.1)
 
     if DEBUG:
         #cv2.imwrite('char_img.png', char_img)
