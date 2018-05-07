@@ -3,8 +3,38 @@ import numpy as np
 from copy import deepcopy
 from lib import calc_bbox, X, Y, WIDTH, HEIGHT, BboxImg
 
-
 DEBUG = True
+
+
+def mean(list, item_func):
+    sum = 0
+    for i in list:
+        val = item_func(i)
+        sum += val
+
+    res = sum / len(list)
+    return res
+
+
+def estimate_avg_char_size(img):
+    'Returns the mean height of characters in img'
+    gray_img = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
+    height, width = img.shape[0:2]
+
+    mser = cv2.MSER_create()
+    coodinates, bboxes = mser.detectRegions(gray_img)
+
+    if DEBUG:
+        debug_img = deepcopy(img)
+        for bbox in bboxes:
+            x, y, w, h = bbox
+            cv2.rectangle(debug_img, (x, y), (x + w, y + h), (0, 255, 0), 1)
+        cv2.imshow('est_char_size_debug_img', debug_img)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
+
+    m = mean(bboxes, lambda k: k[HEIGHT])
+    return int(m)
 
 
 def extract_characters_bbox(img):

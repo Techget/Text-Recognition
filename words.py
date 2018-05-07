@@ -3,6 +3,7 @@ import numpy as np
 from copy import deepcopy
 from collections import namedtuple
 from lib import calc_bbox, X, Y, WIDTH, HEIGHT, BboxImg
+from characters import estimate_avg_char_size
 import PIL
 
 DEBUG = True
@@ -22,8 +23,9 @@ def _extract_lines(img):
         cv2.destroyAllWindows()
 
     # Close the image to form lines
-    # TODO: make the kernel size dynamic according to the mean character size
-    rect_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (100, 5))
+    m = estimate_avg_char_size(img)
+    # make the kernel size dynamic according to the mean character size
+    rect_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (m*5, int(m/3)))
     line_img = cv2.morphologyEx(edges_img, cv2.MORPH_CLOSE, rect_kernel)
 
     if DEBUG:
@@ -67,7 +69,8 @@ def _extract_words_line(img):
     edges_img = cv2.Canny(gray_img, 10, 100)
 
     # TODO: dynamically size the kernel according to character size in line
-    kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (6, 6))
+    m = estimate_avg_char_size(img)
+    kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (int(m/3), int(m/3)))
     word_img = cv2.morphologyEx(edges_img, cv2.MORPH_CLOSE, kernel)
 
     if DEBUG:
@@ -124,8 +127,11 @@ def extract_regions(img):
     height, width = img.shape[0:2]
 
     edges_img = cv2.Canny(gray_img, 10, 100)
+
+    m = estimate_avg_char_size(img)
+
     # TODO: make kernel dynamically sized (use image size?)
-    kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (100, 100))
+    kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (5*m, 5*m))
     region_img = cv2.dilate(edges_img, kernel, iterations=1)
 
     if DEBUG:
