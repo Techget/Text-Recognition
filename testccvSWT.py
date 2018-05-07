@@ -5,6 +5,7 @@ from skimage import draw
 from skimage.io import imread, imshow, imsave
 from matplotlib import pyplot as plt
 import sys
+import cv2
 
 def rectangle_perimeter(r0, c0, width, height, shape=None, clip=False):
     rr, cc = [r0, r0 + width, r0 + width, r0], [c0, c0, c0 + height, c0 + height]
@@ -30,6 +31,11 @@ if __name__ == "__main__":
             image[rr, cc] = (255, 0, 0)
         
         subimage = image[y:y+height, x:x+width]
+
+        
+
+        
+        cv2.putText(image, 'hello world', (x,y), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0,0),2)
         imsave('result'+str(j)+'.jpg', subimage)
         j+=1
 
