@@ -13,8 +13,8 @@ import matplotlib.pyplot as plt
 from PIL import Image
 import tensorflow as tf
 
-# from CNN.data_providers import DataProvider, AlphabeticalDataProvider, NumericalDataProvider
-from data_providers import DataProvider, AlphabeticalDataProvider, NumericalDataProvider
+from CNN.data_providers import DataProvider, AlphabeticalDataProvider, NumericalDataProvider
+# from data_providers import DataProvider, AlphabeticalDataProvider, NumericalDataProvider
 
 from os.path import expanduser
 
@@ -238,7 +238,7 @@ class ConvolutionNN:
     def predict(self, input_sample):
         with tf.Session() as sess:
             # restore the model
-            print('~~~~~',self.savefile)
+            # print('~~~~~',self.savefile)
             self.saver.restore(sess, self.savefile)
             prediction = sess.run(self.y_conv, feed_dict={self.x: [input_sample], self.keep_prob: 1})
 

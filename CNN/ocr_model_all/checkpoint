@@ -1,0 +1,2 @@
+model_checkpoint_path: "/home/xuan/comp9517/Text-Recognition/CNN/ocr_model_all/ocr_conv_nn"
+all_model_checkpoint_paths: "/home/xuan/comp9517/Text-Recognition/CNN/ocr_model_all/ocr_conv_nn"

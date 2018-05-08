@@ -44,10 +44,11 @@ if __name__ == "__main__":
         characters = []
         for char_img in character_imgs:
             resize_char_img = np.array(cv2.resize(char_img, (28, 28), interpolation=cv2.INTER_CUBIC))
-            ravel_char_img = resize_char_img.ravel()
+            gray_image = cv2.cvtColor(resize_char_img, cv2.COLOR_BGR2GRAY)
+            ravel_char_img = gray_image.ravel()
             prediction = CNN_model.predict(ravel_char_img)
-            temp = CNN.test_data.id2char[np.argmax(prediction) + 1]
-            print(temp)
+            temp = CNN_model.test_data.id2char[np.argmax(prediction) + 1]
+            # print(temp)
             characters.append(temp)
 
         corresponding_text = ''.join(map(str, characters))
