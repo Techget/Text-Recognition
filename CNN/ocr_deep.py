@@ -13,7 +13,10 @@ import matplotlib.pyplot as plt
 from PIL import Image
 import tensorflow as tf
 
+# from CNN.data_providers import DataProvider, AlphabeticalDataProvider, NumericalDataProvider
 from data_providers import DataProvider, AlphabeticalDataProvider, NumericalDataProvider
+
+from os.path import expanduser
 
 FLAGS = None
 
@@ -33,18 +36,21 @@ class ConvolutionNN:
             'Expected data_type to be either "all", "alphabetical" or "numerical". '
             'Got {0}'.format(data_type)
         )
+
+        self.base_path = expanduser("~") + '/'+'comp9517/Text-Recognition/CNN/'
+
         if data_type == 'all':
             self.train_data = DataProvider(batch_size, which_set='train')
             self.test_data = DataProvider(batch_size, which_set='test')
-            path2 = 'ocr_model_all/'
+            path2 = self.base_path+'ocr_model_all/'
         elif data_type == 'alphabetical':
             self.train_data = AlphabeticalDataProvider(batch_size, which_set='train')
             self.test_data = AlphabeticalDataProvider(batch_size, which_set='test')
-            path2 = 'ocr_model_alpha/'
+            path2 = self.base_path+'ocr_model_alpha/'
         elif data_type == 'numerical':
             self.train_data = NumericalDataProvider(batch_size, which_set='train')
             self.test_data = NumericalDataProvider(batch_size, which_set='test')
-            path2 = 'ocr_model_num/'
+            path2 = self.base_path+'ocr_model_num/'
 
         self.n_classes = self.train_data.num_classes
 
@@ -178,12 +184,13 @@ class ConvolutionNN:
         Args:
             An integer (n_epochs) defining the number of epochs
         """
-
-        with tf.Session() as sess:
+        session_conf = tf.ConfigProto(intra_op_parallelism_threads=1,
+            inter_op_parallelism_threads=1)
+        with tf.Session(config=session_conf) as sess:
             sess.run(tf.global_variables_initializer())
 
             try:
-                for e in range(n_epochs):
+                for e in range(1): #n_epochs
                     i = 0
                     start_time = time.time()
                     for input_batch, target_batch in self.train_data:
@@ -231,6 +238,7 @@ class ConvolutionNN:
     def predict(self, input_sample):
         with tf.Session() as sess:
             # restore the model
+            print('~~~~~',self.savefile)
             self.saver.restore(sess, self.savefile)
             prediction = sess.run(self.y_conv, feed_dict={self.x: [input_sample], self.keep_prob: 1})
 
@@ -247,16 +255,16 @@ if __name__ == '__main__':
     args, unparsed = parser.parse_known_args()
 
     data_type = 'all'
-    CNN = ConvolutionNN(batch_size=args.batch_size, data_type=data_type)
+    CNN_model = ConvolutionNN(batch_size=args.batch_size, data_type=data_type)
 
     if args.mode == 'train':
-        CNN.train(n_epochs=args.epochs)
+        CNN_model.train(n_epochs=args.epochs)
     elif args.mode == 'continue_training':
-        CNN.continue_train(n_epochs=args.epochs)
+        CNN_model.continue_train(n_epochs=args.epochs)
     else:
-        data = CNN.test_data
+        data = CNN_model.test_data
         for i in range(10):
-            prediction = CNN.predict(data.inputs[i])
+            prediction = CNN_model.predict(data.inputs[i])
             if data_type == 'alphabetical':
                 char_pred = data.id2char[10 + np.argmax(prediction) + 1]
                 char_real = data.id2char[10 + np.argmax(data.targets[i]) + 1]

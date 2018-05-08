@@ -12,7 +12,7 @@ import numpy as np
 from PIL import Image
 
 DEFAULT_SEED = 123456
-
+from os.path import expanduser
 
 class DataProvider(object):
     """Data provider."""
@@ -41,6 +41,8 @@ class DataProvider(object):
         )
         self.which_set = which_set
 
+        self.base_path = expanduser("~") + '/'+'comp9517/Text-Recognition/CNN/'
+
         assert 0 < prop <= 1, (
             'Expected prop to be 0 < prop <= 1. '
             'Got {0}'.format(prop)
@@ -50,7 +52,7 @@ class DataProvider(object):
         self.inputs = []
         self.targets = []
 
-        data_path = 'EnglishFnt/Fnt/'
+        data_path = self.base_path+'EnglishFnt/Fnt/'
         # data_path = 'EnglishImg/Img/GoodImg/Bmp/'
         self.folders = os.listdir(data_path)
 

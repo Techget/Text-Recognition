@@ -4,7 +4,7 @@ from copy import deepcopy
 from lib import calc_bbox, X, Y, WIDTH, HEIGHT, BboxImg
 
 
-DEBUG = True
+DEBUG = False
 
 
 def extract_characters_bbox(img):
