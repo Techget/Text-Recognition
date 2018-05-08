@@ -3,7 +3,7 @@ import numpy as np
 from copy import deepcopy
 from lib import calc_bbox, X, Y, WIDTH, HEIGHT, BboxImg, add_inc_border, percent_inc_border
 
-DEBUG = False
+DEBUG = True
 
 
 def mean(list, item_func):
