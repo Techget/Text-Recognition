@@ -2,7 +2,8 @@ import cv2
 import numpy as np
 from copy import deepcopy
 from collections import namedtuple
-from lib import calc_bbox, X, Y, WIDTH, HEIGHT, BboxImg
+from lib import calc_bbox, X, Y, WIDTH, HEIGHT, BboxImg, percent_inc_border, add_inc_border
+from characters import estimate_avg_char_size
 import PIL
 
 DEBUG = True
@@ -22,8 +23,9 @@ def _extract_lines(img):
         cv2.destroyAllWindows()
 
     # Close the image to form lines
-    # TODO: make the kernel size dynamic according to the mean character size
-    rect_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (100, 5))
+    m = estimate_avg_char_size(img)
+    # make the kernel size dynamic according to the mean character size
+    rect_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (m*5, int(m/3)))
     line_img = cv2.morphologyEx(edges_img, cv2.MORPH_CLOSE, rect_kernel)
 
     if DEBUG:
@@ -36,7 +38,7 @@ def _extract_lines(img):
 
     # find the bounding boxes
     _, contours, _ = cv2.findContours(line_img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-    bboxes = calc_bbox(contours, width, height)
+    bboxes = calc_bbox(contours, width, height, add_inc_border, m/4, m/4)
 
     if DEBUG:
         debug_img = deepcopy(img)
@@ -66,8 +68,9 @@ def _extract_words_line(img):
     height, width = img.shape[0:2]
     edges_img = cv2.Canny(gray_img, 10, 100)
 
-    # TODO: dynamically size the kernel according to character size in line
-    kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (6, 6))
+    # dynamically size the kernel according to character size in line
+    m = estimate_avg_char_size(img)
+    kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (int(m/3), int(m/3)))
     word_img = cv2.morphologyEx(edges_img, cv2.MORPH_CLOSE, kernel)
 
     if DEBUG:
@@ -78,7 +81,7 @@ def _extract_words_line(img):
     word_img = cv2.threshold(word_img, 0, 255, cv2.THRESH_BINARY)[1]
 
     _, contours, _ = cv2.findContours(word_img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-    bboxes = calc_bbox(contours, width, height)
+    bboxes = calc_bbox(contours, width, height, add_inc_border, m/4, m/4)
 
     if DEBUG:
         debug_img = deepcopy(img)
@@ -124,8 +127,11 @@ def extract_regions(img):
     height, width = img.shape[0:2]
 
     edges_img = cv2.Canny(gray_img, 10, 100)
-    # TODO: make kernel dynamically sized (use image size?)
-    kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (100, 100))
+
+    m = estimate_avg_char_size(img)
+
+    # make kernel dynamically sized (use image size?)
+    kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (5*m, 5*m))
     region_img = cv2.dilate(edges_img, kernel, iterations=1)
 
     if DEBUG:
@@ -134,7 +140,7 @@ def extract_regions(img):
         cv2.destroyAllWindows()
 
     _, contours, _ = cv2.findContours(region_img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-    bboxes = calc_bbox(contours, width, height)
+    bboxes = calc_bbox(contours, width, height, add_inc_border, m, m)
 
     if DEBUG:
         debug_img = deepcopy(img)
