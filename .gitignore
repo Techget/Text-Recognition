@@ -1,6 +1,8 @@
 *.jpg
 *.png
 *.pyc
-__pycache/*
+__pycache__/*
 venv/
+!img_with_border.jpg
+!result.jpg
 
