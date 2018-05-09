@@ -78,7 +78,7 @@ def extract_characters_bbox(img):
             if i == j:
                 break
             if (bboxes[i][X] >= bboxes[j][X] and bboxes[i][X] + bboxes[i][WIDTH] <= bboxes[j][X] + bboxes[j][WIDTH] and
-            bboxes[i][Y] >= bboxes[j][Y] and bboxes[i][Y] + bboxes[i][HEIGHT] <=  bboxes[j][Y] + bbox[j][HEIGHT]):
+            bboxes[i][Y] >= bboxes[j][Y] and bboxes[i][Y] + bboxes[i][HEIGHT] <=  bboxes[j][Y] + bboxes[j][HEIGHT]):
                 to_remove.append(bboxes[j])
 
             elif ((bboxes[i][X] >= bboxes[j][X] and bboxes[j][X] + bboxes[j][WIDTH] >= bboxes[i][X])):
