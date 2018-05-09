@@ -54,3 +54,4 @@ if __name__ == '__main__':
 
                 corresponding_text = ''.join(map(str, characters))
                 print(corresponding_text)
+                characters = []
