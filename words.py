@@ -70,7 +70,7 @@ def _extract_words_line(img):
 
     # dynamically size the kernel according to character size in line
     m = estimate_avg_char_size(img)
-    kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (int(m/3), int(m/3)))
+    kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (int(m/2.5), int(m/3)))
     word_img = cv2.morphologyEx(edges_img, cv2.MORPH_CLOSE, kernel)
 
     if DEBUG:

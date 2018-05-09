@@ -4,7 +4,7 @@ import argparse
 from words import extract_words, extract_regions
 from characters import extract_characters, estimate_avg_char_size
 from PIL import Image
-import pillowfight as pf
+#import pillowfight as pf
 
 DEBUG = True
 
