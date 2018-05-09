@@ -81,7 +81,7 @@ def _extract_words_line(img):
     word_img = cv2.threshold(word_img, 0, 255, cv2.THRESH_BINARY)[1]
 
     _, contours, _ = cv2.findContours(word_img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-    bboxes = calc_bbox(contours, width, height, add_inc_border, m/4, m/4)
+    bboxes = calc_bbox(contours, width, height, add_inc_border, m/6, m/6)
 
     if DEBUG:
         debug_img = deepcopy(img)
