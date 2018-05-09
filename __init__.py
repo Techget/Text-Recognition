@@ -4,8 +4,8 @@ import argparse
 from words import extract_words, extract_regions
 from characters import extract_characters, estimate_avg_char_size
 from PIL import Image
-#import pillowfight as pf
-
+import pillowfight as pf
+from CNN.ocr_deep import ConvolutionNN
 DEBUG = True
 
 def PIL_to_cv_img(PIL_img):
@@ -30,16 +30,27 @@ if __name__ == '__main__':
         cv2.waitKey(0)
         cv2.destroyAllWindows()
 
-    regions = extract_regions(to_extract_img)
+    CNN_model = ConvolutionNN()
 
+    regions = extract_regions(to_extract_img)
+    characters = []
     for r in regions:
         lines = extract_words(r)
 
         for words in lines:
             for word_img in words:
-                characters = extract_characters(word_img)
-                for char in characters:
+                character_imgs = extract_characters(word_img)
+                for char_img in character_imgs:
                     # TODO add padding if necessary
                     # TODO resize character img to for CNN
                     # TODO classify using CNN
-                    pass
+                    resize_char_img = np.array(cv2.resize(char_img, (28, 28), interpolation=cv2.INTER_CUBIC))
+                    gray_image = cv2.cvtColor(resize_char_img, cv2.COLOR_BGR2GRAY)
+                    ravel_char_img = gray_image.ravel()
+                    prediction = CNN_model.predict(ravel_char_img)
+                    temp = CNN_model.test_data.id2char[np.argmax(prediction) + 1]
+                    # print(temp)
+                    characters.append(temp)
+
+                corresponding_text = ''.join(map(str, characters))
+                print(corresponding_text)

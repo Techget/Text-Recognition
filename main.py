@@ -7,7 +7,9 @@ from matplotlib import pyplot as plt
 import sys
 import cv2
 from CNN.ocr_deep import ConvolutionNN
-from characters import extract_characters
+# from characters import extract_characters
+from words import extract_words, extract_regions
+from characters import extract_characters, estimate_avg_char_size
 
 
 def rectangle_perimeter(r0, c0, width, height, shape=None, clip=False):
@@ -40,16 +42,23 @@ if __name__ == "__main__":
             image[rr, cc] = (255, 0, 0)
         
         subimage = image[y:y+height, x:x+width]
-        character_imgs = extract_characters(subimage)
+
+        # pad_word_image= cv2.copyMakeBorder(subimage,10,10,10,10,cv2.BORDER_CONSTANT,value=[255,255,255])
         characters = []
-        for char_img in character_imgs:
-            resize_char_img = np.array(cv2.resize(char_img, (28, 28), interpolation=cv2.INTER_CUBIC))
-            gray_image = cv2.cvtColor(resize_char_img, cv2.COLOR_BGR2GRAY)
-            ravel_char_img = gray_image.ravel()
-            prediction = CNN_model.predict(ravel_char_img)
-            temp = CNN_model.test_data.id2char[np.argmax(prediction) + 1]
-            # print(temp)
-            characters.append(temp)
+
+        lines = extract_words(subimage)
+        for words in lines:
+            for word_img in words:
+                character_imgs = extract_characters(word_img)
+                
+                for char_img in character_imgs:
+                    resize_char_img = np.array(cv2.resize(char_img, (28, 28), interpolation=cv2.INTER_CUBIC))
+                    gray_image = cv2.cvtColor(resize_char_img, cv2.COLOR_BGR2GRAY)
+                    ravel_char_img = gray_image.ravel()
+                    prediction = CNN_model.predict(ravel_char_img)
+                    temp = CNN_model.test_data.id2char[np.argmax(prediction) + 1]
+                    # print(temp)
+                    characters.append(temp)
 
         corresponding_text = ''.join(map(str, characters))
 
