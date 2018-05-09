@@ -52,8 +52,34 @@ def extract_characters_bbox(img):
     char_img = cv2.threshold(edges_img, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
     char_img = 255 - char_img
 
+    if DEBUG:
+        cv2.imwrite('test.png', char_img)
+
     _, contours, _ = cv2.findContours(char_img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_TC89_KCOS)
-    bboxes = calc_bbox(contours, width, height, percent_inc_border, 1.05, 1.1)
+    bboxes = calc_bbox(contours, width, height, percent_inc_border, 1.02, 1.1)
+
+    # Remove boxes inside of a larger box
+    # Have to handle disconnected characters i.e. i
+    to_remove = []
+    for i in range(0, len(bboxes)):
+        for j in range(0, len(bboxes)):
+            if i == j:
+                break
+            if (bboxes[i][X] >= bboxes[j][X] and bboxes[i][X] + bboxes[i][WIDTH] <= bboxes[j][X] + bboxes[j][WIDTH] and
+            bboxes[i][Y] >= bboxes[j][Y] and bboxes[i][Y] + bboxes[i][HEIGHT] <=  bboxes[j][Y] + bboxes[j][HEIGHT]):
+                to_remove.append(bboxes[j])
+
+            elif ((bboxes[i][X] >= bboxes[j][X] and bboxes[j][X] + bboxes[j][WIDTH] >= bboxes[i][X] + bboxes[i][WIDTH])):
+                # combine them
+                to_remove.append(bboxes[i])
+                new_width = bboxes[j][WIDTH]
+                new_y = 0
+                new_height = height
+                # build new tuple and replace
+                new_bbox = (bboxes[j][X], new_y, new_width, new_height)
+                bboxes[j] = new_bbox
+
+    bboxes = [x for x in bboxes if x not in to_remove]
 
     if DEBUG:
         #cv2.imwrite('char_img.png', char_img)
@@ -70,28 +96,6 @@ def extract_characters_bbox(img):
         cv2.waitKey(0)
         cv2.destroyAllWindows()
 
-    # Remove boxes inside of a larger box
-    # Have to handle disconnected characters i.e. i
-    to_remove = []
-    for i in range(0, len(bboxes)):
-        for j in range(0, len(bboxes)):
-            if i == j:
-                break
-            if (bboxes[i][X] >= bboxes[j][X] and bboxes[i][X] + bboxes[i][WIDTH] <= bboxes[j][X] + bboxes[j][WIDTH] and
-            bboxes[i][Y] >= bboxes[j][Y] and bboxes[i][Y] + bboxes[i][HEIGHT] <=  bboxes[j][Y] + bboxes[j][HEIGHT]):
-                to_remove.append(bboxes[j])
-
-            elif ((bboxes[i][X] >= bboxes[j][X] and bboxes[j][X] + bboxes[j][WIDTH] >= bboxes[i][X])):
-                # combine them
-                to_remove.append(bboxes[i])
-                new_width = bboxes[j][WIDTH]
-                new_y = 0
-                new_height = height
-                # build new tuple and replace
-                new_bbox = (bboxes[j][X], new_y, new_width, new_height)
-                bboxes[j] = new_bbox
-
-    bboxes = [x for x in bboxes if x not in to_remove]
     return bboxes
 
 
