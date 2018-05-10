@@ -213,7 +213,8 @@ class ConvolutionNN:
         Args:
             An integer (n_epochs) defining the number of epochs
         """
-
+        session_conf = tf.ConfigProto(intra_op_parallelism_threads=1,
+            inter_op_parallelism_threads=1)
         with tf.Session() as sess:
             sess.run(tf.global_variables_initializer())
             self.saver.restore(sess, self.savefile)

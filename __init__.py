@@ -19,11 +19,15 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
+    # preprocess, GaussianBlur and segmentation
+    img = cv2.imread(args.image)
+    blurred_img = cv2.GaussianBlur(img, (5, 5), 0)
+
     # Need to run SWT algorithm to get rid of non text
-    #PIL_img = Image.open(args.image)
-    #PIL_no_text_img = pf.swt(PIL_img, output_type=pf.SWT_OUTPUT_ORIGINAL_BOXES)
-    #to_extract_img = PIL_to_cv_img(PIL_no_text_img)
-    to_extract_img = cv2.imread(args.image, 1)
+    PIL_img = Image.open(args.image)
+    PIL_no_text_img = pf.swt(PIL_img, output_type=pf.SWT_OUTPUT_ORIGINAL_BOXES)
+    to_extract_img = PIL_to_cv_img(PIL_no_text_img)
+    # to_extract_img = cv2.imread(args.image, 1)
 
     if DEBUG:
         cv2.imshow('img', to_extract_img)
