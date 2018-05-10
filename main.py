@@ -37,34 +37,48 @@ if __name__ == "__main__":
     image = imread(image_name, as_grey=False)
     j = 0
     for x, y, width, height in swt_result:
-        for i in xrange(0, 3): # just to make lines thicker
-            rr, cc = rectangle_perimeter(y + i, x + i, height, width, shape=image.shape, clip=True)
-            image[rr, cc] = (255, 0, 0)
-        
+        # for i in xrange(0, 3): # just to make lines thicker            
         subimage = image[y:y+height, x:x+width]
 
-        # pad_word_image= cv2.copyMakeBorder(subimage,10,10,10,10,cv2.BORDER_CONSTANT,value=[255,255,255])
+        cv2.imshow('word extracted by swt', subimage)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
+
+        pad_word_image= cv2.copyMakeBorder(subimage,20,20,20,20,cv2.BORDER_CONSTANT,value=[255,255,255])
         characters = []
 
-        lines = extract_words(subimage)
-        for words in lines:
-            for word_img in words:
-                character_imgs = extract_characters(word_img)
-                
-                for char_img in character_imgs:
-                    resize_char_img = np.array(cv2.resize(char_img, (28, 28), interpolation=cv2.INTER_CUBIC))
-                    gray_image = cv2.cvtColor(resize_char_img, cv2.COLOR_BGR2GRAY)
-                    ravel_char_img = gray_image.ravel()
-                    prediction = CNN_model.predict(ravel_char_img)
-                    temp = CNN_model.test_data.id2char[np.argmax(prediction) + 1]
-                    # print(temp)
-                    characters.append(temp)
+        regions = extract_regions(pad_word_image)
+        # lines = extract_words(subimage)
+        
+        for r in regions:
+            lines = extract_words(r)
+            for words in lines:
+                for word_img in words:
+                    character_imgs = extract_characters(word_img)
+                    for char_img in character_imgs:
+                        pad_char_image= cv2.copyMakeBorder(char_img,10,10,10,10,cv2.BORDER_CONSTANT,value=[255,255,255])
+                        resize_char_img = np.array(cv2.resize(pad_char_image, (28, 28), interpolation=cv2.INTER_CUBIC))
+                        gray_image = cv2.cvtColor(resize_char_img, cv2.COLOR_BGR2GRAY)
+
+                        cv2.imshow('char_img input for cnn', gray_image)
+                        cv2.waitKey(0)
+                        cv2.destroyAllWindows()
+
+                        ravel_char_img = gray_image.ravel()
+                        prediction = CNN_model.predict(ravel_char_img)
+                        temp = CNN_model.test_data.id2char[np.argmax(prediction) + 1]
+                        # print(temp)
+                        characters.append(temp)
 
         corresponding_text = ''.join(map(str, characters))
 
         cv2.putText(image, corresponding_text, (x,y), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0,0),2)
         # imsave('result'+str(j)+'.jpg', subimage)
         j+=1
+
+        # draw the bounding box for each word
+        rr, cc = rectangle_perimeter(y, x, height, width, shape=image.shape, clip=True)
+        image[rr, cc] = (255, 0, 0)
 
     imshow(image)
     imsave("result.jpg", image)

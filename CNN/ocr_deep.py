@@ -190,7 +190,7 @@ class ConvolutionNN:
             sess.run(tf.global_variables_initializer())
 
             try:
-                for e in range(1): #n_epochs
+                for e in range(n_epochs): #n_epochs
                     i = 0
                     start_time = time.time()
                     for input_batch, target_batch in self.train_data:
