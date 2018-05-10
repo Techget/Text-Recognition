@@ -72,13 +72,14 @@ if __name__ == "__main__":
 
         corresponding_text = ''.join(map(str, characters))
 
-        cv2.putText(image, corresponding_text, (x,y), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0,0),2)
+        cv2.putText(image, corresponding_text, (x-5,y-5), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0,0),1)
         # imsave('result'+str(j)+'.jpg', subimage)
         j+=1
 
         # draw the bounding box for each word
-        rr, cc = rectangle_perimeter(y, x, height, width, shape=image.shape, clip=True)
-        image[rr, cc] = (255, 0, 0)
+        for i in xrange(0, 3): # just to make lines thicker
+            rr, cc = rectangle_perimeter(y + i, x + i, height, width, shape=image.shape, clip=True)
+            image[rr, cc] = (255, 0, 0)
 
     imshow(image)
     imsave("result.jpg", image)
