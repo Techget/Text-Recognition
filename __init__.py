@@ -22,6 +22,7 @@ if __name__ == '__main__':
     # preprocess, GaussianBlur and segmentation
     img = cv2.imread(args.image)
     blurred_img = cv2.GaussianBlur(img, (5, 5), 0)
+    # cv2.imwrite()
 
     # Need to run SWT algorithm to get rid of non text
     PIL_img = Image.open(args.image)
@@ -48,9 +49,17 @@ if __name__ == '__main__':
                     # TODO add padding if necessary
                     # TODO resize character img to for CNN
                     # TODO classify using CNN
-                    resize_char_img = np.array(cv2.resize(char_img, (28, 28), interpolation=cv2.INTER_CUBIC))
+                    pad_word_image= cv2.copyMakeBorder(char_img,2,2,5,5,cv2.BORDER_CONSTANT,value=[255,255,255])
+                    cv2.imshow('padded', pad_word_image)
+                    cv2.waitKey(0)
+                    cv2.destroyAllWindows()
+                    resize_char_img = np.array(cv2.resize(pad_word_image, (28, 28), interpolation=cv2.INTER_CUBIC))
+                    cv2.imwrite('tempCharImg.png', resize_char_img)
                     gray_image = cv2.cvtColor(resize_char_img, cv2.COLOR_BGR2GRAY)
-                    ravel_char_img = gray_image.ravel()
+
+                    constrained_value_img = 1 - np.array(gray_image, dtype=np.float32) / 255
+
+                    ravel_char_img = constrained_value_img.ravel()
                     prediction = CNN_model.predict(ravel_char_img)
                     temp = CNN_model.test_data.id2char[np.argmax(prediction) + 1]
                     # print(temp)
