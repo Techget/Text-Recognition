@@ -6,6 +6,9 @@ from characters import extract_characters, estimate_avg_char_size
 from PIL import Image
 import pillowfight as pf
 from CNN.ocr_deep import ConvolutionNN
+from autocorrect import spell
+
+
 DEBUG = True
 
 def PIL_to_cv_img(PIL_img):
@@ -50,11 +53,12 @@ if __name__ == '__main__':
                     # TODO resize character img to for CNN
                     # TODO classify using CNN
                     pad_word_image= cv2.copyMakeBorder(char_img,2,2,5,5,cv2.BORDER_CONSTANT,value=[255,255,255])
-                    cv2.imshow('padded', pad_word_image)
-                    cv2.waitKey(0)
-                    cv2.destroyAllWindows()
+                    if DEBUG:
+                        cv2.imshow('padded', pad_word_image)
+                        cv2.waitKey(0)
+                        cv2.destroyAllWindows()
                     resize_char_img = np.array(cv2.resize(pad_word_image, (28, 28), interpolation=cv2.INTER_CUBIC))
-                    cv2.imwrite('tempCharImg.png', resize_char_img)
+                    # cv2.imwrite('tempCharImg.png', resize_char_img)
                     gray_image = cv2.cvtColor(resize_char_img, cv2.COLOR_BGR2GRAY)
 
                     constrained_value_img = 1 - np.array(gray_image, dtype=np.float32) / 255
@@ -66,5 +70,6 @@ if __name__ == '__main__':
                     characters.append(temp)
 
                 corresponding_text = ''.join(map(str, characters))
+                corresponding_text = spell(corresponding_text)
                 print(corresponding_text)
                 characters = []
