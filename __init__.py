@@ -24,7 +24,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     spell = SpellChecker()
-    spell.word_frequency.load_words(['donald','trump','destiny','realDonaldTrump'])
+    # spell.word_frequency.load_words(['donald','trump','destiny','realDonaldTrump',''])
 
     # preprocess, GaussianBlur and segmentation
     img = cv2.imread(args.image)
@@ -84,9 +84,10 @@ if __name__ == '__main__':
                 corresponding_word = ''.join(map(str, characters))
                 if SPELL_CHECKING_FLAG:
                     # corresponding_word = spell(corresponding_word)
-                    print('beofre spell checking: ', corresponding_word)
-                    corresponding_word = spell.correction(corresponding_word)
-
+                    print('before spell checking: ', corresponding_word)
+                    checked_corresponding_word = spell.correction(corresponding_word)
+                    if corresponding_word.lower() != checked_corresponding_word:
+                        corresponding_word = checked_corresponding_word
                 print(corresponding_word)
                 region_text_block += ' '+corresponding_word
                 characters = []

@@ -4,7 +4,7 @@ from copy import deepcopy
 from lib import calc_bbox, X, Y, WIDTH, HEIGHT, BboxImg, add_inc_border, percent_inc_border
 
 DEBUG = True
-CHARACTER_SIZE_THRESHOLD = 0
+# CHARACTER_SIZE_THRESHOLD = 15
 
 def mean(list, item_func):
     sum = 0
@@ -22,7 +22,7 @@ def estimate_avg_char_size(img):
     height, width = img.shape[0:2]
 
     delta = 5
-    min_area = 50
+    min_area = 55
     max_area = 14500
     max_variation = 0.3
     min_diversity = .2
@@ -101,7 +101,11 @@ def extract_characters_bbox(img):
                 bboxes[j] = new_bbox
 
     bboxes = [x for x in bboxes if x not in to_remove]
-    bboxes = filter(lambda x: x[HEIGHT] > CHARACTER_SIZE_THRESHOLD and x[WIDTH] > CHARACTER_SIZE_THRESHOLD, bboxes)
+
+    heights = [x[HEIGHT] for x in bboxes]
+    avg_heights = sum(heights)/float(len(heights))
+    threshold = avg_heights * 0.7
+    bboxes = list(filter(lambda x: x[HEIGHT] > threshold, bboxes))
 
     if DEBUG:
         #cv2.imwrite('char_img.png', char_img)
