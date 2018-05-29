@@ -68,16 +68,12 @@ if __name__ == '__main__':
                 character_imgs = extract_characters(word_img)
                 characters = []
                 for char_img in character_imgs:
-                    # TODO add padding if necessary
-                    # TODO resize character img to for CNN
-                    # TODO classify using CNN
                     pad_word_image= cv2.copyMakeBorder(char_img,2,2,5,5,cv2.BORDER_CONSTANT,value=[255,255,255])
                     if DEBUG:
                         cv2.imshow('padded char img input to CNN', pad_word_image)
                         cv2.waitKey(0)
                         cv2.destroyAllWindows()
                     resize_char_img = np.array(cv2.resize(pad_word_image, (28, 28), interpolation=cv2.INTER_CUBIC))
-                    # cv2.imwrite('tempCharImg.png', resize_char_img)
                     gray_image = cv2.cvtColor(resize_char_img, cv2.COLOR_BGR2GRAY)
 
                     constrained_value_img = 1 - np.array(gray_image, dtype=np.float32) / 255
@@ -85,7 +81,6 @@ if __name__ == '__main__':
                     ravel_char_img = constrained_value_img.ravel()
                     prediction = CNN_model.predict(ravel_char_img)
                     temp = CNN_model.test_data.id2char[np.argmax(prediction) + 1]
-                    # print(temp)
                     characters.append(temp)
 
                 corresponding_word = ''.join(map(str, characters))
