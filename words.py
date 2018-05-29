@@ -4,9 +4,9 @@ from copy import deepcopy
 from collections import namedtuple
 from lib import calc_bbox, X, Y, WIDTH, HEIGHT, BboxImg, percent_inc_border, add_inc_border
 from characters import estimate_avg_char_size
-import PIL
+#import PIL
 
-DEBUG = True
+DEBUG = False
 
 
 def _extract_lines(img):

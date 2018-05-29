@@ -8,7 +8,6 @@ import pillowfight as pf
 from CNN.ocr_deep import ConvolutionNN
 from autocorrect import spell
 
-
 DEBUG = True
 
 def PIL_to_cv_img(PIL_img):

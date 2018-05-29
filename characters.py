@@ -21,7 +21,28 @@ def estimate_avg_char_size(img):
     gray_img = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
     height, width = img.shape[0:2]
 
-    mser = cv2.MSER_create()
+    delta = 5
+    min_area = 60
+    max_area = 14400
+    max_variation = 0.1
+    min_diversity = .2
+    max_evolution = 200
+    area_threshold = 1.01
+    min_margin = 0.005
+    edge_blur_size = 5
+
+    mser = cv2.MSER_create(
+        _delta = delta,
+        _min_area = min_area,
+        _max_area = max_area,
+        _max_variation = max_variation,
+        _min_diversity = min_diversity,
+        _max_evolution = max_evolution,
+        _area_threshold = area_threshold,
+        _min_margin = min_margin,
+        _edge_blur_size = edge_blur_size
+    )
+
     coodinates, bboxes = mser.detectRegions(gray_img)
 
     if DEBUG:
