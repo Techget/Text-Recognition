@@ -4,7 +4,7 @@ from copy import deepcopy
 from lib import calc_bbox, X, Y, WIDTH, HEIGHT, BboxImg, add_inc_border, percent_inc_border
 
 DEBUG = True
-
+CHARACTER_SIZE_THRESHOLD = 0
 
 def mean(list, item_func):
     sum = 0
@@ -101,6 +101,7 @@ def extract_characters_bbox(img):
                 bboxes[j] = new_bbox
 
     bboxes = [x for x in bboxes if x not in to_remove]
+    bboxes = filter(lambda x: x[HEIGHT] > CHARACTER_SIZE_THRESHOLD and x[WIDTH] > CHARACTER_SIZE_THRESHOLD, bboxes)
 
     if DEBUG:
         #cv2.imwrite('char_img.png', char_img)
