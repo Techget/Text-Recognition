@@ -159,4 +159,4 @@ def extract_regions(img):
         res.append(BboxImg(bbox, bbox_img))
 
     res.sort(key=lambda k: k.bbox[X], reverse=False)
-    return [i.img for i in res]
+    return [i.img for i in res], [i.bbox for i in res]

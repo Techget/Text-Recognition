@@ -5,4 +5,5 @@ __pycache__/*
 venv/
 !img_with_border.jpg
 !result.jpg
+*.txt
 

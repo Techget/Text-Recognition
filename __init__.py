@@ -25,9 +25,11 @@ if __name__ == '__main__':
     # preprocess, GaussianBlur and segmentation
     img = cv2.imread(args.image)
     blurred_img = cv2.GaussianBlur(img, (5, 5), 0)
-    # cv2.imwrite()
+    cv2.imwrite('blurred'+args.image, blurred_img)
 
     # Need to run SWT algorithm to get rid of non text
+    # with blurred image, it will neglect trivia part, but it will also degradate performance
+    # PIL_img = Image.open('blurred'+args.image) 
     PIL_img = Image.open(args.image)
     PIL_no_text_img = pf.swt(PIL_img, output_type=pf.SWT_OUTPUT_ORIGINAL_BOXES)
     to_extract_img = PIL_to_cv_img(PIL_no_text_img)
@@ -40,10 +42,12 @@ if __name__ == '__main__':
 
     CNN_model = ConvolutionNN()
 
-    regions = extract_regions(to_extract_img)
+    region_imgs, region_coords = extract_regions(to_extract_img)
     characters = []
-    for r in regions:
-        lines = extract_words(r)
+
+    for i in range(len(region_imgs)):
+        lines = extract_words(region_imgs[i])
+        region_text_block = ''
 
         for words in lines:
             for word_img in words:
@@ -69,7 +73,21 @@ if __name__ == '__main__':
                     # print(temp)
                     characters.append(temp)
 
-                corresponding_text = ''.join(map(str, characters))
-                corresponding_text = spell(corresponding_text)
-                print(corresponding_text)
+                corresponding_word = ''.join(map(str, characters))
+                corresponding_word = spell(corresponding_word)
+                print(corresponding_word)
+                region_text_block += ' '+corresponding_word
                 characters = []
+
+        with open('result.txt', 'a+') as f:
+            print("{}: {}".format(region_coords[i], region_text_block),file=f)
+
+        cv2.rectangle(img,
+            (region_coords[i][0], region_coords[i][1]),
+            (region_coords[i][0]+region_coords[i][2],region_coords[i][1]+region_coords[i][3]),
+            (255,0,0),3)
+
+    cv2.imshow('text block found', img)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
+    cv2.imwrite('textBlcok'+args.image, img)
