@@ -22,9 +22,9 @@ def estimate_avg_char_size(img):
     height, width = img.shape[0:2]
 
     delta = 5
-    min_area = 60
-    max_area = 14400
-    max_variation = 0.1
+    min_area = 50
+    max_area = 14500
+    max_variation = 0.3
     min_diversity = .2
     max_evolution = 200
     area_threshold = 1.01

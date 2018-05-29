@@ -7,8 +7,10 @@ from PIL import Image
 import pillowfight as pf
 from CNN.ocr_deep import ConvolutionNN
 from autocorrect import spell
+from spellchecker import SpellChecker
 
 DEBUG = True
+
 
 def PIL_to_cv_img(PIL_img):
     CV_img = np.array(PIL_img)
@@ -20,6 +22,9 @@ if __name__ == '__main__':
     parser.add_argument('image', type=str)
 
     args = parser.parse_args()
+
+    spell = SpellChecker()
+    spell.word_frequency.load_words(['donald','trump','destiny','realDonaldTrump'])
 
     # preprocess, GaussianBlur and segmentation
     img = cv2.imread(args.image)
@@ -49,6 +54,10 @@ if __name__ == '__main__':
         region_text_block = ''
 
         for words in lines:
+            SPELL_CHECKING_FLAG = True
+            if len(words) <= 3:
+                SPELL_CHECKING_FLAG = False               
+
             for word_img in words:
                 character_imgs = extract_characters(word_img)
                 for char_img in character_imgs:
@@ -73,7 +82,11 @@ if __name__ == '__main__':
                     characters.append(temp)
 
                 corresponding_word = ''.join(map(str, characters))
-                corresponding_word = spell(corresponding_word)
+                if SPELL_CHECKING_FLAG:
+                    # corresponding_word = spell(corresponding_word)
+                    print('beofre spell checking: ', corresponding_word)
+                    corresponding_word = spell.correction(corresponding_word)
+
                 print(corresponding_word)
                 region_text_block += ' '+corresponding_word
                 characters = []

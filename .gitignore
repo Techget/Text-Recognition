@@ -6,4 +6,4 @@ venv/
 !img_with_border.jpg
 !result.jpg
 *.txt
-
+/CNN/English/
