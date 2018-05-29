@@ -1,87 +1,106 @@
-from __future__ import print_function
-import ccvwrapper
-import numpy as np
-from skimage import draw
-from skimage.io import imread, imshow, imsave
-from matplotlib import pyplot as plt
-import sys
 import cv2
-from CNN.ocr_deep import ConvolutionNN
-# from characters import extract_characters
+import numpy as np
+import argparse
 from words import extract_words, extract_regions
 from characters import extract_characters, estimate_avg_char_size
+from PIL import Image
+import pillowfight as pf
+from CNN.ocr_deep import ConvolutionNN
+from autocorrect import spell
+from spellchecker import SpellChecker
+
+DEBUG = True
 
 
-def rectangle_perimeter(r0, c0, width, height, shape=None, clip=False):
-    rr, cc = [r0, r0 + width, r0 + width, r0], [c0, c0, c0 + height, c0 + height]
+def PIL_to_cv_img(PIL_img):
+    CV_img = np.array(PIL_img)
+    return CV_img
 
-    return draw.polygon_perimeter(rr, cc, shape=shape, clip=clip)
 
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('image', type=str)
 
-if __name__ == "__main__":
-    if len(sys.argv) == 2:
-        image_name = sys.argv[1]
-    else:
-        image_name = "img_with_border.jpg"
-    
-    # SWT get words in the image
-    bytesx = open(image_name, "rb").read()
-    swt_result_raw = ccvwrapper.swt(bytesx, len(bytesx), 1024, 1360)
-    swt_result = np.reshape(swt_result_raw, (len(swt_result_raw) / 4, 4))
-    print(swt_result)
+    args = parser.parse_args()
 
-    # load trained CNN for character recognition
-    CNN_model = ConvolutionNN()
+    spell = SpellChecker()
+    # spell.word_frequency.load_words(['donald','trump','destiny','realDonaldTrump',''])
 
-    # extract words, recognize each character and group them as a word
-    image = imread(image_name, as_grey=False)
-    j = 0
-    for x, y, width, height in swt_result:
-        # for i in xrange(0, 3): # just to make lines thicker            
-        subimage = image[y:y+height, x:x+width]
+    # preprocess, GaussianBlur and segmentation
+    img = cv2.imread(args.image)
+    blurred_img = cv2.GaussianBlur(img, (5, 5), 0)
+    cv2.imwrite('blurred'+args.image, blurred_img)
 
-        cv2.imshow('word extracted by swt', subimage)
+    # Need to run SWT algorithm to get rid of non text
+    # with blurred image, it will neglect trivia part, but it will also degradate performance
+    # PIL_img = Image.open('blurred'+args.image) 
+    PIL_img = Image.open(args.image)
+    PIL_no_text_img = pf.swt(PIL_img, output_type=pf.SWT_OUTPUT_ORIGINAL_BOXES)
+    to_extract_img = PIL_to_cv_img(PIL_no_text_img)
+    # to_extract_img = cv2.imread(args.image, 1)
+
+    if DEBUG:
+        cv2.imshow('img', to_extract_img)
         cv2.waitKey(0)
         cv2.destroyAllWindows()
 
-        pad_word_image= cv2.copyMakeBorder(subimage,20,20,20,20,cv2.BORDER_CONSTANT,value=[255,255,255])
-        characters = []
+    CNN_model = ConvolutionNN()
 
-        regions = extract_regions(pad_word_image)
-        # lines = extract_words(subimage)
-        
-        for r in regions:
-            lines = extract_words(r)
-            for words in lines:
-                for word_img in words:
-                    character_imgs = extract_characters(word_img)
-                    for char_img in character_imgs:
-                        pad_char_image= cv2.copyMakeBorder(char_img,10,10,10,10,cv2.BORDER_CONSTANT,value=[255,255,255])
-                        resize_char_img = np.array(cv2.resize(pad_char_image, (28, 28), interpolation=cv2.INTER_CUBIC))
-                        gray_image = cv2.cvtColor(resize_char_img, cv2.COLOR_BGR2GRAY)
+    region_imgs, region_coords = extract_regions(to_extract_img)
+    characters = []
 
-                        cv2.imshow('char_img input for cnn', gray_image)
+    for i in range(len(region_imgs)):
+        lines = extract_words(region_imgs[i])
+        region_text_block = ''
+
+        for words in lines:
+            SPELL_CHECKING_FLAG = True
+            if len(words) <= 3:
+                SPELL_CHECKING_FLAG = False               
+
+            for word_img in words:
+                character_imgs = extract_characters(word_img)
+                for char_img in character_imgs:
+                    # TODO add padding if necessary
+                    # TODO resize character img to for CNN
+                    # TODO classify using CNN
+                    pad_word_image= cv2.copyMakeBorder(char_img,2,2,5,5,cv2.BORDER_CONSTANT,value=[255,255,255])
+                    if DEBUG:
+                        cv2.imshow('padded', pad_word_image)
                         cv2.waitKey(0)
                         cv2.destroyAllWindows()
+                    resize_char_img = np.array(cv2.resize(pad_word_image, (28, 28), interpolation=cv2.INTER_CUBIC))
+                    # cv2.imwrite('tempCharImg.png', resize_char_img)
+                    gray_image = cv2.cvtColor(resize_char_img, cv2.COLOR_BGR2GRAY)
 
-                        ravel_char_img = gray_image.ravel()
-                        prediction = CNN_model.predict(ravel_char_img)
-                        temp = CNN_model.test_data.id2char[np.argmax(prediction) + 1]
-                        # print(temp)
-                        characters.append(temp)
+                    constrained_value_img = 1 - np.array(gray_image, dtype=np.float32) / 255
 
-        corresponding_text = ''.join(map(str, characters))
+                    ravel_char_img = constrained_value_img.ravel()
+                    prediction = CNN_model.predict(ravel_char_img)
+                    temp = CNN_model.test_data.id2char[np.argmax(prediction) + 1]
+                    # print(temp)
+                    characters.append(temp)
 
-        cv2.putText(image, corresponding_text, (x-5,y-5), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0,0),1)
-        # imsave('result'+str(j)+'.jpg', subimage)
-        j+=1
+                corresponding_word = ''.join(map(str, characters))
+                if SPELL_CHECKING_FLAG:
+                    # corresponding_word = spell(corresponding_word)
+                    print('before spell checking: ', corresponding_word)
+                    checked_corresponding_word = spell.correction(corresponding_word)
+                    if corresponding_word.lower() != checked_corresponding_word:
+                        corresponding_word = checked_corresponding_word
+                print(corresponding_word)
+                region_text_block += ' '+corresponding_word
+                characters = []
 
-        # draw the bounding box for each word
-        for i in xrange(0, 3): # just to make lines thicker
-            rr, cc = rectangle_perimeter(y + i, x + i, height, width, shape=image.shape, clip=True)
-            image[rr, cc] = (255, 0, 0)
+        with open('result.txt', 'a+') as f:
+            print("{}: {}".format(region_coords[i], region_text_block),file=f)
 
-    imshow(image)
-    imsave("result.jpg", image)
-    plt.show()
+        cv2.rectangle(img,
+            (region_coords[i][0], region_coords[i][1]),
+            (region_coords[i][0]+region_coords[i][2],region_coords[i][1]+region_coords[i][3]),
+            (255,0,0),3)
 
+    cv2.imshow('text block found', img)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
+    cv2.imwrite('textBlcok'+args.image, img)
