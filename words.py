@@ -6,7 +6,7 @@ from lib import calc_bbox, X, Y, WIDTH, HEIGHT, BboxImg, percent_inc_border, add
 from characters import estimate_avg_char_size
 #import PIL
 
-DEBUG = False
+DEBUG = True
 
 
 def _extract_lines(img):

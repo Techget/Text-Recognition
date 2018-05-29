@@ -3,7 +3,7 @@ import numpy as np
 from copy import deepcopy
 from lib import calc_bbox, X, Y, WIDTH, HEIGHT, BboxImg, add_inc_border, percent_inc_border
 
-DEBUG = True
+DEBUG = False
 # CHARACTER_SIZE_THRESHOLD = 15
 
 def mean(list, item_func):
@@ -50,7 +50,7 @@ def estimate_avg_char_size(img):
         for bbox in bboxes:
             x, y, w, h = bbox
             cv2.rectangle(debug_img, (x, y), (x + w, y + h), (0, 255, 0), 1)
-        cv2.imshow('est_char_size_debug_img', debug_img)
+        cv2.imshow('estimate_char_size_debug_img', debug_img)
         cv2.waitKey(0)
         cv2.destroyAllWindows()
 

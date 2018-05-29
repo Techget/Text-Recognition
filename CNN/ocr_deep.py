@@ -13,8 +13,8 @@ import matplotlib.pyplot as plt
 from PIL import Image
 import tensorflow as tf
 
-# from CNN.data_providers import DataProvider, AlphabeticalDataProvider, NumericalDataProvider
-from data_providers import DataProvider, AlphabeticalDataProvider, NumericalDataProvider
+from CNN.data_providers import DataProvider, AlphabeticalDataProvider, NumericalDataProvider
+# from data_providers import DataProvider, AlphabeticalDataProvider, NumericalDataProvider
 
 from os.path import expanduser
 

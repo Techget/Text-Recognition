@@ -9,4 +9,5 @@ venv/
 /CNN/English/
 CNN/ocr_model_all_old/
 main_old.py
+CNN/ocr_model_all/
 
