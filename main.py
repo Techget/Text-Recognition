@@ -29,7 +29,7 @@ if __name__ == '__main__':
     # preprocess, GaussianBlur and segmentation
     img = cv2.imread(args.image)
     blurred_img = cv2.GaussianBlur(img, (5, 5), 0)
-    cv2.imwrite('blurred'+args.image, blurred_img)
+    # cv2.imwrite('blurred'+args.image, blurred_img)
 
     # Need to run SWT algorithm to get rid of non text
     # with blurred image, it will neglect trivia part, but it will also degradate performance
@@ -82,9 +82,9 @@ if __name__ == '__main__':
                     characters.append(temp)
 
                 corresponding_word = ''.join(map(str, characters))
-                if SPELL_CHECKING_FLAG:
+                if SPELL_CHECKING_FLAG and not is_number(corresponding_word):
                     # corresponding_word = spell(corresponding_word)
-                    print('before spell checking: ', corresponding_word)
+                    # print('before spell checking: ', corresponding_word)
                     checked_corresponding_word = spell.correction(corresponding_word)
                     if corresponding_word.lower() != checked_corresponding_word:
                         corresponding_word = checked_corresponding_word
@@ -104,3 +104,4 @@ if __name__ == '__main__':
     cv2.waitKey(0)
     cv2.destroyAllWindows()
     cv2.imwrite('textBlcok'+args.image, img)
+
