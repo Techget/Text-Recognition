@@ -184,8 +184,8 @@ class ConvolutionNN:
         Args:
             An integer (n_epochs) defining the number of epochs
         """
-        session_conf = tf.ConfigProto(intra_op_parallelism_threads=1,
-            inter_op_parallelism_threads=1)
+        session_conf = tf.ConfigProto(intra_op_parallelism_threads=2,
+            inter_op_parallelism_threads=2)
         with tf.Session(config=session_conf) as sess:
             sess.run(tf.global_variables_initializer())
 
@@ -213,9 +213,9 @@ class ConvolutionNN:
         Args:
             An integer (n_epochs) defining the number of epochs
         """
-        session_conf = tf.ConfigProto(intra_op_parallelism_threads=1,
-            inter_op_parallelism_threads=1)
-        with tf.Session() as sess:
+        session_conf = tf.ConfigProto(intra_op_parallelism_threads=2,
+            inter_op_parallelism_threads=2)
+        with tf.Session(config=session_conf) as sess:
             sess.run(tf.global_variables_initializer())
             self.saver.restore(sess, self.savefile)
 
@@ -249,9 +249,9 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('-b', '--batchSize', type=int, default=100,
                         dest='batch_size', help='Batch size')
-    parser.add_argument('-e', '--epochs', type=int, default=20,
+    parser.add_argument('-e', '--epochs', type=int, default=100,
                         dest='epochs', help='Number of epochs')
-    parser.add_argument('-m', '--mode', type=str, default='train',
+    parser.add_argument('-m', '--mode', type=str, default='continue_training',
                         dest='mode', help='Mode, can be "train" or "test"')
     args, unparsed = parser.parse_known_args()
 
