@@ -73,8 +73,8 @@ def extract_characters_bbox(img):
     char_img = cv2.threshold(edges_img, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
     char_img = 255 - char_img
 
-    if DEBUG:
-        cv2.imwrite('test.png', char_img)
+    # if DEBUG:
+    #     cv2.imwrite('test.png', char_img)
 
     _, contours, _ = cv2.findContours(char_img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_TC89_KCOS)
     bboxes = calc_bbox(contours, width, height, percent_inc_border, 1.02, 1.1)

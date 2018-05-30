@@ -8,6 +8,7 @@ import pillowfight as pf
 from CNN.ocr_deep import ConvolutionNN
 from autocorrect import spell
 from spellchecker import SpellChecker
+import editdistance
 
 DEBUG = True
 
@@ -86,10 +87,13 @@ if __name__ == '__main__':
                 corresponding_word = ''.join(map(str, characters))
                 if SPELL_CHECKING_FLAG and not corresponding_word.isnumeric():
                     # corresponding_word = spell(corresponding_word)
-                    # print('before spell checking: ', corresponding_word)
+                    print('before spell checking: ', corresponding_word)
                     checked_corresponding_word = spell.correction(corresponding_word.lower())
                     if corresponding_word.lower() != checked_corresponding_word:
                         corresponding_word = checked_corresponding_word
+                    if not corresponding_word[0].isupper():
+                        corresponding_word = corresponding_word.lower()
+
                 if DEBUG:
                     print(corresponding_word)
                 region_text_block += ' '+corresponding_word
@@ -113,7 +117,9 @@ if __name__ == '__main__':
         if (gt_list[i]).lower() == (extraced_list[i]).lower():
             correct_count += 1
 
-    print("Evaluation: {}/{} words are correctly extracted out of origin image".format(correct_count, len(gt_list)))
+    print("######## Evaluation #########")
+    print("{}/{} words are correctly extracted out of origin image".format(correct_count, len(gt_list)))
+    print("Edit distance between our work and original data: {}".format(editdistance.eval(gt_data, extracted_string)))
 
     # output image with bounding box, to tell people what we've extracted out from image
     cv2.imshow('text block found', img)
