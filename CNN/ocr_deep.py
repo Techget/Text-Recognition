@@ -13,8 +13,8 @@ import matplotlib.pyplot as plt
 from PIL import Image
 import tensorflow as tf
 
-from CNN.data_providers import DataProvider, AlphabeticalDataProvider, NumericalDataProvider
-# from data_providers import DataProvider, AlphabeticalDataProvider, NumericalDataProvider
+# from CNN.data_providers import DataProvider, AlphabeticalDataProvider, NumericalDataProvider
+from data_providers import DataProvider, AlphabeticalDataProvider, NumericalDataProvider
 
 from os.path import expanduser
 
@@ -219,22 +219,22 @@ class ConvolutionNN:
             sess.run(tf.global_variables_initializer())
             self.saver.restore(sess, self.savefile)
 
-            for e in range(n_epochs):
-                i = 0
-                start_time = time.time()
-                for input_batch, target_batch in self.train_data:
-                    train_accuracy = self.accuracy.eval(
-                        feed_dict={self.x: input_batch, self.y_: target_batch, self.keep_prob: 1.0})
-                    print('epoch {0}, batch {1:03d} - training accuracy: {2:.3f}'.format(e, i, train_accuracy))
-                    self.train_step.run(feed_dict={self.x: input_batch, self.y_: target_batch, self.keep_prob: 0.5})
-                    i += 1
-                print('\t\tepoch {0} completed in {1:.2f} seconds\n'.format(e, time.time() - start_time))
+            try:
+                for e in range(n_epochs):
+                    i = 0
+                    start_time = time.time()
+                    for input_batch, target_batch in self.train_data:
+                        train_accuracy = self.accuracy.eval(
+                            feed_dict={self.x: input_batch, self.y_: target_batch, self.keep_prob: 1.0})
+                        print('epoch {0}, batch {1:03d} - training accuracy: {2:.3f}'.format(e, i, train_accuracy))
+                        self.train_step.run(feed_dict={self.x: input_batch, self.y_: target_batch, self.keep_prob: 0.5})
+                        i += 1
+                    print('\t\tepoch {0} completed in {1:.2f} seconds\n'.format(e, time.time() - start_time))
 
-                print('\t\ttest accuracy: %g' % self.accuracy.eval(feed_dict={
-                        self.x: self.test_data.inputs, self.y_: self.test_data.targets, self.keep_prob: 1.0}))
-
-            self.saver.save(sess, self.savefile)
-
+                    print('\t\ttest accuracy: %g' % self.accuracy.eval(feed_dict={
+                            self.x: self.test_data.inputs, self.y_: self.test_data.targets, self.keep_prob: 1.0}))
+            finally:
+                self.saver.save(sess, self.savefile)
 
     def predict(self, input_sample):
         with tf.Session() as sess:
