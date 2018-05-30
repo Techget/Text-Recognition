@@ -87,7 +87,7 @@ if __name__ == '__main__':
                 corresponding_word = ''.join(map(str, characters))
                 if SPELL_CHECKING_FLAG and not corresponding_word.isnumeric():
                     # corresponding_word = spell(corresponding_word)
-                    print('before spell checking: ', corresponding_word)
+                    # print('before spell checking: ', corresponding_word)
                     checked_corresponding_word = spell.correction(corresponding_word.lower())
                     if corresponding_word.lower() != checked_corresponding_word:
                         corresponding_word = checked_corresponding_word
