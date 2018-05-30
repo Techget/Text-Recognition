@@ -22,7 +22,8 @@ if __name__ == '__main__':
     # remove punctuation
     translator = str.maketrans('', '', string.punctuation)
     text = text.translate(translator)
-    
+
     print(text)
-    print(editdistance.eval(text, gt_data))
+    print("################ Evaluation ###################")
+    print("Edit distance between pytesseract and original data: {}".format(editdistance.eval(text, gt_data)))
 

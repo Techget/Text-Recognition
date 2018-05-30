@@ -117,7 +117,7 @@ if __name__ == '__main__':
         if (gt_list[i]).lower() == (extraced_list[i]).lower():
             correct_count += 1
 
-    print("######## Evaluation #########")
+    print("################ Evaluation ###################")
     print("{}/{} words are correctly extracted out of origin image".format(correct_count, len(gt_list)))
     print("Edit distance between our work and original data: {}".format(editdistance.eval(gt_data, extracted_string)))
 
