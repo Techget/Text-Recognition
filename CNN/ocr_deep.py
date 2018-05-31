@@ -14,6 +14,7 @@ from PIL import Image
 import tensorflow as tf
 
 from CNN.data_providers import DataProvider, AlphabeticalDataProvider, NumericalDataProvider
+# if you want to train the model, use following import and change the base_path in the following program
 # from data_providers import DataProvider, AlphabeticalDataProvider, NumericalDataProvider
 
 from os.path import expanduser
