@@ -28,10 +28,10 @@ def _extract_lines(img):
     rect_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (m*5, int(m/3)))
     line_img = cv2.morphologyEx(edges_img, cv2.MORPH_CLOSE, rect_kernel)
 
-    if DEBUG:
-        cv2.imshow('line_img', line_img)
-        cv2.waitKey(0)
-        cv2.destroyAllWindows()
+    # if DEBUG:
+    #     cv2.imshow('line_img', line_img)
+    #     cv2.waitKey(0)
+    #     cv2.destroyAllWindows()
 
     # otsu's method
     line_img = cv2.threshold(line_img, 0, 255, cv2.THRESH_BINARY)[1]
@@ -73,10 +73,10 @@ def _extract_words_line(img):
     kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (int(m/2.5), int(m/3)))
     word_img = cv2.morphologyEx(edges_img, cv2.MORPH_CLOSE, kernel)
 
-    if DEBUG:
-        cv2.imshow('word_img', word_img)
-        cv2.waitKey(0)
-        cv2.destroyAllWindows()
+    # if DEBUG:
+    #     cv2.imshow('word_img', word_img)
+    #     cv2.waitKey(0)
+    #     cv2.destroyAllWindows()
 
     word_img = cv2.threshold(word_img, 0, 255, cv2.THRESH_BINARY)[1]
 
@@ -134,10 +134,10 @@ def extract_regions(img):
     kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (5*m, 5*m))
     region_img = cv2.dilate(edges_img, kernel, iterations=1)
 
-    if DEBUG:
-        cv2.imshow('region_img', region_img)
-        cv2.waitKey(0)
-        cv2.destroyAllWindows()
+    # if DEBUG:
+    #     cv2.imshow('region_img', region_img)
+    #     cv2.waitKey(0)
+    #     cv2.destroyAllWindows()
 
     _, contours, _ = cv2.findContours(region_img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     bboxes = calc_bbox(contours, width, height, add_inc_border, m, m)
