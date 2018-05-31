@@ -1,14 +1,14 @@
 ## Optical Character Recognition engine with stroke width transform(swt), maximally stable extremal regions, connvolutional neural networks, and various morphological operations
 
 ### Dependencies required are
-numpy==1.14.3
-opencv-python==3.4.0.12
-Pillow==5.1.0
-pypillowfight==0.2.4
-autocorrect
-spellchecker
-editdistance
-tensorflow
+numpy==1.14.3,
+opencv-python==3.4.0.12,
+Pillow==5.1.0,
+pypillowfight==0.2.4,
+autocorrect,
+spellchecker,
+editdistance,
+tensorflow,
 
 ### Usage
 To run the OCR engine, use following command
