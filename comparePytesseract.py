@@ -23,6 +23,7 @@ if __name__ == '__main__':
     translator = str.maketrans('', '', string.punctuation)
     text = text.translate(translator)
 
+    print("################ Output text from pytesseract ###################")
     print(text)
     print("################ Evaluation ###################")
     print("Edit distance between pytesseract and original data: {}".format(editdistance.eval(text, gt_data)))
