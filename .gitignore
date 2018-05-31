@@ -3,11 +3,11 @@
 *.pyc
 __pycache__/*
 venv/
-!img_with_border.jpg
-!result.jpg
 *.txt
 /CNN/English/
 CNN/ocr_model_all_old/
 main_old.py
 CNN/ocr_model_all/
-
+!demo.png
+!demoGroundTruthText.txt
+!requirement.txt
